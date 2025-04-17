@@ -6,7 +6,7 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: python airport_bot.py
     envVars:
-      - key: TELEGRAM_TOKEN
+      - key: 8051795674:AAHuqYMmC47CzFsd-Li-y0_kEH3bSZi01Uk
         sync: false
-      - key: AVIATIONSTACK_API_KEY
+      - key: 861b70e5357b042f9c72c5d242e24021
         sync: false
