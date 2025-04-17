@@ -23,6 +23,20 @@ cursor.execute('''
 ''')
 conn.commit()
 
+# Kết nối đến cơ sở dữ liệu SQLite
+conn = sqlite3.connect('flights_data.db')  # Thay 'flights_data.db' bằng tên cơ sở dữ liệu của bạn
+cursor = conn.cursor()
+
+# Thêm dữ liệu vào bảng flights
+cursor.execute('''
+INSERT INTO flights (timestamp, flight_code, airline, departure, arrival, status)
+VALUES ('2025-04-17 09:00:00', 'VJ123', 'VietJet', 'HAN', 'SGN', 'On Time')
+''')
+
+# Đóng kết nối
+conn.commit()
+conn.close()
+
 AIRPORTS_VN = {
     "HAN": "Nội Bài", "SGN": "Tân Sơn Nhất", "DAD": "Đà Nẵng", "CXR": "Cam Ranh",
     "HUI": "Phú Bài", "VCL": "Chu Lai", "VII": "Vinh", "PQC": "Phú Quốc",
