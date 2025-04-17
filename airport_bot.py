@@ -10,8 +10,12 @@ API_KEY = os.getenv("AVIATIONSTACK_API_KEY")
 
 app = Flask(__name__)
 
-conn = sqlite3.connect("flights.db", check_same_thread=False)
+# Sử dụng một cơ sở dữ liệu duy nhất cho cả hai bảng history và flights
+DATABASE = 'flights_data.db'
+conn = sqlite3.connect(DATABASE, check_same_thread=False)
 cursor = conn.cursor()
+
+# Tạo bảng history nếu chưa có
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,32 +25,22 @@ cursor.execute('''
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )
 ''')
-conn.commit()
 
-# Kết nối đến cơ sở dữ liệu SQLite
-conn = sqlite3.connect('flights_data.db')  # Thay 'flights_data.db' bằng tên cơ sở dữ liệu của bạn
-cursor = conn.cursor()
-
-# Thêm dữ liệu vào bảng flights
+# Tạo bảng flights nếu chưa có
 cursor.execute('''
-INSERT INTO flights (timestamp, flight_code, airline, departure, arrival, status)
-VALUES ('2025-04-17 09:00:00', 'VJ123', 'VietJet', 'HAN', 'SGN', 'On Time')
+    CREATE TABLE IF NOT EXISTS flights (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT,
+        flight_code TEXT,
+        airline TEXT,
+        departure TEXT,
+        arrival TEXT,
+        status TEXT
+    )
 ''')
-
-# Đóng kết nối
 conn.commit()
 
-AIRPORTS_VN = {
-    "HAN": "Nội Bài", "SGN": "Tân Sơn Nhất", "DAD": "Đà Nẵng", "CXR": "Cam Ranh",
-    "HUI": "Phú Bài", "VCL": "Chu Lai", "VII": "Vinh", "PQC": "Phú Quốc",
-    "BMV": "Buôn Ma Thuột", "DLI": "Liên Khương", "VCA": "Cần Thơ", "THD": "Thọ Xuân",
-    "TBB": "Tuy Hòa", "VDH": "Đồng Hới", "VCS": "Côn Đảo", "PXU": "Pleiku",
-    "HPH": "Cát Bi", "DIN": "Điện Biên"
-}
-
-def get_airport_name(iata):
-    return AIRPORTS_VN.get(iata, iata)
-
+# Hàm lấy thông tin chuyến bay từ AviationStack
 def get_flight_info(flight_code):
     url = f"http://api.aviationstack.com/v1/flights?access_key={API_KEY}&flight_iata={flight_code}"
     response = requests.get(url)
@@ -79,15 +73,19 @@ def get_flight_info(flight_code):
 
     return msg
 
+# Lưu thông tin chuyến bay vào lịch sử và gửi thông báo qua Telegram
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user.username or update.message.from_user.full_name
     flight_code = update.message.text.strip().upper()
 
     info = get_flight_info(flight_code)
     await context.bot.send_message(chat_id=update.effective_chat.id, text=info)
+    
+    # Lưu thông tin vào bảng history
     cursor.execute("INSERT INTO history (user, flight_code, info) VALUES (?, ?, ?)", (user, flight_code, info))
     conn.commit()
 
+# Cấu hình Telegram bot
 telegram_app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
