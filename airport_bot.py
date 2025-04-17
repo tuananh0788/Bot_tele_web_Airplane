@@ -35,7 +35,6 @@ VALUES ('2025-04-17 09:00:00', 'VJ123', 'VietJet', 'HAN', 'SGN', 'On Time')
 
 # Đóng kết nối
 conn.commit()
-conn.close()
 
 AIRPORTS_VN = {
     "HAN": "Nội Bài", "SGN": "Tân Sơn Nhất", "DAD": "Đà Nẵng", "CXR": "Cam Ranh",
