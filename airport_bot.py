@@ -34,11 +34,11 @@ LANGUAGE_OPTIONS = ['🇻🇳 Tiếng Việt', '🇬🇧 English']
 # 2) Menu chính bổ sung 3 lựa chọn và 1 nút đổi ngôn ngữ
 MAIN_MENU = {
     'vn': [
-        ['🔎 Tra mã chuyến bay', '📍 Tra theo điểm đến', '📍 Tra theo điểm đi'],
+        ['🔎 Tra mã chuyến bay', '📍 Tra theo điểm đến', '🛫 Tra theo điểm đi'],
         ['🔄 Đổi ngôn ngữ']
     ],
     'en': [
-        ['🔎 Search by flight code', '📍 Search by destination', '📍 Search by origin'],
+        ['🔎 Search by flight code', '📍 Search by destination', '🛫 Search by origin'],
         ['🔄 Change language']
     ]
 }
@@ -507,7 +507,7 @@ def handle(update: Update, context):
         )
         return
 
-    if text in ['📍 tra theo điểm đi', '📍 search by origin']:
+    if text in ['📍 tra theo điểm đi', '🛫 search by origin']:
         user_states[uid]['state'] = 'origin'
         update.message.reply_text(
             "Nhập tên thành phố/sân bay xuất phát" if lang=='vn'
