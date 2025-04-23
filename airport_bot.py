@@ -10,6 +10,18 @@ TOKEN = '8051795674:AAHuqYMmC47CzFsd-Li-y0_kEH3bSZi01Uk'
 API_KEY = 'ac2469df44587ed7b51f78729f69bd30'
 API_USAGE_FILE = "api_usage.txt"
 
+# Sau các import, ngay trước khi khởi tạo app:
+STATUS_MAP = {
+    "scheduled": {"vn": "Đã lên lịch",    "en": "Scheduled"},
+    "active":    {"vn": "Đang bay",       "en": "En route"},
+    "landed":    {"vn": "Đã hạ cánh",    "en": "Landed"},
+    "cancelled": {"vn": "Đã hủy",        "en": "Cancelled"},
+    "incident":  {"vn": "Sự cố",          "en": "Incident"},
+    "diverted":  {"vn": "Bay lệch hướng", "en": "Diverted"},
+    "delayed":   {"vn": "Chậm giờ",       "en": "Delayed"},
+}
+
+
 app = Flask(__name__)
 bot = Bot(token=TOKEN)
 dispatcher = Dispatcher(bot, None, workers=0)
@@ -303,15 +315,6 @@ def get_flight_info(code, lang="vn"):
     est_arr = fmt_time(flight['arrival'].get('estimated', ''))
     act_arr = fmt_time(flight['arrival'].get('actual', ''))
 
-    status_map = {
-        "scheduled": "Đã lên lịch" if lang == "vn" else "Scheduled",
-        "active":    "Đang bay"     if lang == "vn" else "En route",
-        "landed":    "Đã hạ cánh"  if lang == "vn" else "Landed",
-        "cancelled": "Đã hủy"      if lang == "vn" else "Cancelled",
-        "incident":  "Sự cố"        if lang == "vn" else "Incident",
-        "diverted":  "Bay lệch hướng" if lang == "vn" else "Diverted"
-    }
-
     msg = f"✈️ {code.upper()} - {airline}\n"
     msg += f"🛫 {dep_iata} ({dep_name}) → 🛬 {arr_iata} ({arr_name})\n"
     if est_dep:
@@ -337,19 +340,39 @@ def get_flights_by_destination(code, lang="vn"):
     results = []
     now = datetime.utcnow()
     for f in data.get("data", []):
+        # parse thời gian
         arr_est = fmt_time(f["arrival"].get("estimated", ""))
-        arr_act = fmt_time(f["arrival"].get("actual", ""))
+        arr_act = fmt_time(f["arrival"].get("actual",    ""))
         dep_est = fmt_time(f["departure"].get("estimated", ""))
-        dep_act = fmt_time(f["departure"].get("actual", ""))
+        dep_act = fmt_time(f["departure"].get("actual",    ""))
+
         if not arr_est:
             continue
-        status = ("landed" if arr_act and arr_act < now - timedelta(hours=1)
-                  else "scheduled")
-        results.append((arr_est, f, status))
+
+        # 1) ưu tiên dùng status API
+        status_code = f.get("flight_status", "scheduled")
+
+        # 2) nếu API không trả về hoặc trả status lạ, fallback dựa vào actual time
+        if status_code not in STATUS_MAP:
+            if arr_act and arr_act < now:
+                status_code = "landed"
+            else:
+                # nếu actual > estimated thì delayed
+                if arr_act and arr_est and arr_act > arr_est:
+                    status_code = "delayed"
+                else:
+                    status_code = "scheduled"
+
+        # 3) lấy text song ngữ
+        status_text = STATUS_MAP[status_code][lang]
+
+        results.append((arr_est, f, status_text))
 
     results.sort(key=lambda x: x[0])
+
     msg = ""
     for est, f, status in results[:20]:
+        # (lấy code, tên hãng, sân bay, thời gian như trước)
         flight_code = f['flight']['iata']
         airline     = f['airline']['name']
         dep_code    = f['departure']['iata']
@@ -357,16 +380,19 @@ def get_flights_by_destination(code, lang="vn"):
         dep_name    = airport_names.get(dep_code, dep_code)
         arr_name    = airport_names.get(arr_code, arr_code)
 
-        dep_time = fmt_time(f['departure'].get('actual', '')) or fmt_time(f['departure'].get('estimated', ''))
-        arr_time = est
+        dep_time = dep_act or dep_est
+        arr_time = arr_act or arr_est
+
         dep_str = dep_time.strftime("%d/%m/%Y %H:%M") if dep_time else "N/A"
-        arr_str = arr_time.strftime("%d/%m/%Y %H:%M")
+        arr_str = arr_time.strftime("%d/%m/%Y %H:%M") if arr_time else "N/A"
 
         msg += f"✈️ {flight_code} - {airline}\n"
         msg += f"🛫 Từ: {dep_name} | {dep_str}\n"
         msg += f"🛬 Đến: {arr_name} | {arr_str}\n"
         msg += f"📊 Trạng thái: {status}\n\n"
+
     return msg or ("Không có chuyến bay phù hợp." if lang=="vn" else "No suitable flights found.")
+
 
 # +++ NEW: lọc chuyến theo điểm xuất phát +++
 def get_flights_by_origin(code, lang="vn"):
@@ -379,16 +405,28 @@ def get_flights_by_origin(code, lang="vn"):
     now = datetime.utcnow()
     for f in data.get("data", []):
         dep_est = fmt_time(f["departure"].get("estimated", ""))
-        dep_act = fmt_time(f["departure"].get("actual", ""))
-        arr_est = fmt_time(f["arrival"].get("estimated", ""))
-        arr_act = fmt_time(f["arrival"].get("actual", ""))
+        dep_act = fmt_time(f["departure"].get("actual",    ""))
+        arr_est = fmt_time(f["arrival"].get("estimated",   ""))
+        arr_act = fmt_time(f["arrival"].get("actual",      ""))
+
         if not dep_est:
             continue
-        status = ("landed" if dep_act and dep_act < now - timedelta(hours=1)
-                  else "scheduled")
-        results.append((dep_est, f, status))
+
+        status_code = f.get("flight_status", "scheduled")
+        if status_code not in STATUS_MAP:
+            if dep_act and dep_act < now:
+                status_code = "landed"
+            else:
+                if dep_act and dep_est and dep_act > dep_est:
+                    status_code = "delayed"
+                else:
+                    status_code = "scheduled"
+
+        status_text = STATUS_MAP[status_code][lang]
+        results.append((dep_est, f, status_text))
 
     results.sort(key=lambda x: x[0])
+
     msg = ""
     for est, f, status in results[:20]:
         flight_code = f['flight']['iata']
@@ -398,8 +436,9 @@ def get_flights_by_origin(code, lang="vn"):
         dep_name    = airport_names.get(dep_code, dep_code)
         arr_name    = airport_names.get(arr_code, arr_code)
 
-        dep_time = fmt_time(f['departure'].get('actual', '')) or est
-        arr_time = fmt_time(f['arrival'].get('estimated', '')) or fmt_time(f['arrival'].get('actual', ''))
+        dep_time = dep_act or est
+        arr_time = arr_act or arr_est
+
         dep_str = dep_time.strftime("%d/%m/%Y %H:%M") if dep_time else "N/A"
         arr_str = arr_time.strftime("%d/%m/%Y %H:%M") if arr_time else "N/A"
 
@@ -407,6 +446,7 @@ def get_flights_by_origin(code, lang="vn"):
         msg += f"🛫 Từ: {dep_name} | {dep_str}\n"
         msg += f"🛬 Đến: {arr_name} | {arr_str}\n"
         msg += f"📊 Trạng thái: {status}\n\n"
+
     return msg or ("Không có chuyến bay phù hợp." if lang=="vn" else "No suitable flights found.")
 
 def get_airport_code_by_name(name):
@@ -518,3 +558,19 @@ def webhook():
     update = Update.de_json(request.get_json(force=True), bot)
     dispatcher.process_update(update)
     return "OK"
+
+# Kiểm tra route trang chủ
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+# Webhook route
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    json_str = request.get_data(as_text=True)
+    update = Update.de_json(json_str, bot)
+    dispatcher.process_update(update)
+    return 'OK'
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=10000)
