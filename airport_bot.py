@@ -553,24 +553,17 @@ def handle(update: Update, context):
 
 dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle))
 
-@app.route(f"/{TOKEN}", methods=["POST"])
-def webhook():
-    update = Update.de_json(request.get_json(force=True), bot)
-    dispatcher.process_update(update)
-    return "OK"
-
-# Kiểm tra route trang chủ
+# Route kiểm tra bot có đang chạy không
 @app.route('/')
 def home():
     return "Bot is running!"
 
-# Webhook route
-@app.route('/webhook', methods=['POST'])
+# Route nhận Webhook từ Telegram
+@app.route(f'/{TOKEN}', methods=['POST'])
 def webhook():
-    json_str = request.get_data(as_text=True)
-    update = Update.de_json(json_str, bot)
+    update = Update.de_json(request.get_json(force=True), bot)
     dispatcher.process_update(update)
     return 'OK'
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=10000)
+#    app.run(debug=True, host='0.0.0.0', port=10000)
