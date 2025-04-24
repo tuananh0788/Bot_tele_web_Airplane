@@ -18,7 +18,7 @@ creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
 gc = gspread.authorize(creds)
 
 SPREADSHEET_ID = os.environ["SPREADSHEET_ID"]
-sheet = gc.open_by_key(SPREADSHEET_ID).sheet1
+sheet = gc.open_by_key(SPREADSHEET_ID).worksheet("API Usage Counter")
 
 
 TOKEN = '8051795674:AAHuqYMmC47CzFsd-Li-y0_kEH3bSZi01Uk'
