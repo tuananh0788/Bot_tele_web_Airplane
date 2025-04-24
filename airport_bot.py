@@ -186,6 +186,28 @@ priority_airports = {
     "hà nội": "HAN",      # Nội Bài ưu tiên hơn Gia Lâm (GLI)
 }
 
+# Sẵn sàng một dict mapping tên tỉnh đã normalize → mã sân bay chính
+# Chạy một lần ngay sau khi định nghĩa priority_airports
+priority_map = {
+    normalize_string(province): code
+    for province, code in priority_airports.items()
+}
+
+def get_airport_code_by_name(name):
+    """
+    Trả về mã sân bay dựa trên:
+    1) priority_map nếu user nhập đúng tên tỉnh
+    2) airport_aliases nếu user nhập tên thành phố/sân bay
+    """
+    norm = normalize_string(name)
+
+    # 1) Ưu tiên province
+    if norm in priority_map:
+        return priority_map[norm]
+
+    # 2) Nếu không phải province thì fallback alias
+    return airport_aliases.get(norm)
+
 
 def fmt_time(t):
     try:
@@ -390,7 +412,7 @@ def get_flights_by_origin(code, lang="vn"):
     return "\n\n".join(msgs)
 
 def get_airport_code_by_name(name):
-    return airport_aliases.get(normalize_text(name))
+    return airport_aliases.get(normalize_string(name))
 
 def handle(update: Update, context):
     uid  = update.message.chat_id
