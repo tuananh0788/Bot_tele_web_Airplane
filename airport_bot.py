@@ -195,19 +195,18 @@ priority_map = {
 
 def get_airport_code_by_name(name):
     """
-    Trả về mã sân bay dựa trên:
-    1) priority_map nếu user nhập đúng tên tỉnh
-    2) airport_aliases nếu user nhập tên thành phố/sân bay
+    Lấy mã sân bay:
+    1) Nếu nhập tên tỉnh (Kiên Giang, kie giang, kiengiang) → trả priority_map
+    2) Ngược lại → lookup airport_aliases
     """
     norm = normalize_string(name)
 
-    # 1) Ưu tiên province
+    # 1) ưu tiên province
     if norm in priority_map:
         return priority_map[norm]
 
-    # 2) Nếu không phải province thì fallback alias
+    # 2) fallback sang alias sân bay/city
     return airport_aliases.get(norm)
-
 
 def fmt_time(t):
     try:
