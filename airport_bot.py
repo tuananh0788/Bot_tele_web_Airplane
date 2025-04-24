@@ -186,28 +186,26 @@ priority_airports = {
     "hà nội": "HAN",      # Nội Bài ưu tiên hơn Gia Lâm (GLI)
 }
 
-# Sẵn sàng một dict mapping tên tỉnh đã normalize → mã sân bay chính
-# Chạy một lần ngay sau khi định nghĩa priority_airports
+# Build alias_map: alias_normalized -> IATA code
+alias_map = {}
+for iata, names in airport_aliases.items():
+    for n in names:
+        alias_map[normalize_string(n)] = iata
+
+# Build priority_map from priority_airports
 priority_map = {
     normalize_string(province): code
     for province, code in priority_airports.items()
 }
 
 def get_airport_code_by_name(name):
-    """
-    Lấy mã sân bay:
-    1) Nếu nhập tên tỉnh (Kiên Giang, kie giang, kiengiang) → trả priority_map
-    2) Ngược lại → lookup airport_aliases
-    """
     norm = normalize_string(name)
-
-    # 1) ưu tiên province
+    # 1) Ưu tiên province
     if norm in priority_map:
         return priority_map[norm]
-
-    # 2) fallback sang alias sân bay/city
-    return airport_aliases.get(norm)
-
+    # 2) Fallback sang alias sân bay
+    return alias_map.get(norm)
+    
 def fmt_time(t):
     try:
         return datetime.strptime(t, "%Y-%m-%dT%H:%M:%S+00:00")
