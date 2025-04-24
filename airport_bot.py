@@ -302,7 +302,7 @@ def log_api_usage():
     """Tăng count lên 1, ghi vào A2, và cảnh báo nếu ≥80."""
     cnt = get_api_usage() + 1
     sheet.update("A2", [[cnt]])
-    if cnt in [50, 60, 70, 80, 85, 90, 95]:
+    if cnt in [50, 60, 70, 75, 80, 85, 90, 95]:
         bot.send_message(chat_id='7587598474',
                          text=f"⚠️ Đã dùng {cnt}/100 API calls!")
     return cnt
