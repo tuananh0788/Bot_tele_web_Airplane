@@ -6,6 +6,21 @@ from datetime import datetime, timedelta
 import os
 import unicodedata
 
+import os, json
+import gspread
+from google.oauth2.service_account import Credentials
+
+# --- Google Sheets setup ---
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+creds_json = os.environ["GOOGLE_SHEETS_CREDS_JSON"]
+creds_dict = json.loads(creds_json)
+creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+gc = gspread.authorize(creds)
+
+SPREADSHEET_ID = os.environ["SPREADSHEET_ID"]
+sheet = gc.open_by_key(SPREADSHEET_ID).sheet1
+
+
 TOKEN = '8051795674:AAHuqYMmC47CzFsd-Li-y0_kEH3bSZi01Uk'
 API_KEY = 'ac2469df44587ed7b51f78729f69bd30'
 API_USAGE_FILE = "api_usage.txt"
