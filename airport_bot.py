@@ -240,17 +240,23 @@ def fmt_time(t):
     except:
         return None
 
+def get_api_usage():
+    """Đọc giá trị count hiện tại ở ô A2."""
+    try:
+        value = sheet.acell("A2").value
+        return int(value)
+    except Exception:
+        return 0
+
 def log_api_usage():
-    count = 0
-    if os.path.exists(API_USAGE_FILE):
-        with open(API_USAGE_FILE, "r") as f:
-            count = int(f.read().strip())
-    count += 1
-    with open(API_USAGE_FILE, "w") as f:
-        f.write(str(count))
-    if count >= 80:
-        bot.send_message(chat_id='your_chat_id', text=f"⚠️ Cảnh báo: Đã dùng {count}/100 API calls!")
-    return count
+    """Tăng count lên 1, ghi vào A2, và cảnh báo nếu ≥80."""
+    cnt = get_api_usage() + 1
+    sheet.update("A2", str(cnt))
+    if cnt >= 80:
+        # thay 'your_chat_id' bằng chat_id thật của bạn
+        bot.send_message(chat_id='your_chat_id',
+                         text=f"⚠️ Đã dùng {cnt}/100 API calls!")
+    return cnt
 
 # --- Hàm tìm chuyến theo mã (unchanged) ---
 def get_flight_info(code, lang="vn"):
@@ -524,6 +530,10 @@ def webhook():
     update = Update.de_json(request.get_json(force=True), bot)
     dispatcher.process_update(update)
     return 'OK'
+
+@app.route('/usage')
+def usage():
+    return str(get_api_usage())
 
 if __name__ == '__main__':
     pass  # tránh lỗi indentation
