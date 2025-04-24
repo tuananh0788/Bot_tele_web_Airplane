@@ -251,7 +251,7 @@ def get_api_usage():
 def log_api_usage():
     """Tăng count lên 1, ghi vào A2, và cảnh báo nếu ≥80."""
     cnt = get_api_usage() + 1
-    sheet.update("A2", str(cnt))
+    sheet.update("A2", [[cnt]])
     if cnt >= 80:
         # thay 'your_chat_id' bằng chat_id thật của bạn
         bot.send_message(chat_id='your_chat_id',
