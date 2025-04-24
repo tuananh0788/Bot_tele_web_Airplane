@@ -59,7 +59,7 @@ MAIN_MENU = {
     ]
 }
 
-# --- Danh sách sân bay và alias giữ nguyên như bạn gửi ---
+# --- Danh sách sân bay và alias---
 airport_names = {
     # Các sân bay thương mại đang hoạt động
     "HAN": "Nội Bài",
@@ -112,12 +112,6 @@ airport_names = {
     "DNO": "Đắk Nông (quy hoạch)",
     "KTM": "Kon Tum (đề xuất dân dụng)",
 }
-
-# Hàm chuẩn hóa chuỗi: loại bỏ dấu, khoảng cách, chuyển về chữ thường
-def normalize_string(s):
-    s = ''.join(c for c in unicodedata.normalize('NFKD', s.lower()) if not unicodedata.combining(c))
-    s = re.sub(r'[\s\-\_\.]', '', s)
-    return s
 
 # Dictionary ánh xạ mã sân bay với các alias
 airport_aliases = {
@@ -186,6 +180,12 @@ priority_airports = {
     "hà nội": "HAN",      # Nội Bài ưu tiên hơn Gia Lâm (GLI)
 }
 
+# Hàm chuẩn hóa chuỗi: loại bỏ dấu, khoảng cách, chuyển về chữ thường
+def normalize_string(s):
+    s = ''.join(c for c in unicodedata.normalize('NFKD', s.lower()) if not unicodedata.combining(c))
+    s = re.sub(r'[\s\-\_\.]', '', s)
+    return s
+
 # Build alias_map: alias_normalized -> IATA code
 alias_map = {}
 for iata, names in airport_aliases.items():
@@ -226,7 +226,7 @@ def log_api_usage():
     sheet.update("A2", [[cnt]])
     if cnt >= 80:
         # thay 'your_chat_id' bằng chat_id thật của bạn
-        bot.send_message(chat_id='your_chat_id',
+        bot.send_message(chat_id='7587598474',
                          text=f"⚠️ Đã dùng {cnt}/100 API calls!")
     return cnt
 
