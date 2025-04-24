@@ -106,169 +106,114 @@ def normalize_text(text):
 airport_aliases = {
     # Hà Nội
     "nội bài": "HAN", "noi bai": "HAN", "hà nội": "HAN", "ha noi": "HAN",
-    
     # TP. Hồ Chí Minh
     "tân sơn nhất": "SGN", "tan son nhat": "SGN", "sài gòn": "SGN", "sai gon": "SGN", "tp hcm": "SGN", "hồ chí minh": "SGN", "ho chi minh": "SGN",
-    
     # Đà Nẵng
     "đà nẵng": "DAD", "da nang": "DAD",
-    
     # Hải Phòng
     "cát bi": "HPH", "cat bi": "HPH", "hải phòng": "HPH", "hai phong": "HPH",
-    
     # Cần Thơ
     "cần thơ": "VCA", "can tho": "VCA",
-    
     # Huế
     "phú bài": "HUI", "phu bai": "HUI", "huế": "HUI", "hue": "HUI",
-    
     # Cam Ranh
     "cam ranh": "CXR", "khánh hòa": "CXR", "khanh hoa": "CXR", "nha trang": "CXR",
-    
     # Phú Quốc
     "phú quốc": "PQC", "phu quoc": "PQC", "kiên giang": "PQC", "kien giang": "PQC",
-    
     # Đà Lạt
     "liên khương": "DLI", "lien khuong": "DLI", "đà lạt": "DLI", "da lat": "DLI", "lâm đồng": "DLI", "lam dong": "DLI",
-    
     # Buôn Ma Thuột
     "buôn ma thuột": "BMV", "buon ma thuot": "BMV", "đắk lắk": "BMV", "dak lak": "BMV",
-    
     # Pleiku
     "pleiku": "PXU", "gia lai": "PXU",
-    
     # Vinh
     "vinh": "VII", "nghệ an": "VII", "nghe an": "VII",
-    
     # Đồng Hới
     "đồng hới": "VDH", "dong hoi": "VDH", "quảng bình": "VDH", "quang binh": "VDH",
-    
     # Thanh Hóa
     "sao vàng": "THD", "sao vang": "THD", "thanh hóa": "THD", "thanh hoa": "THD",
-    
     # Chu Lai
     "chu lai": "VCL", "quảng nam": "VCL", "quang nam": "VCL",
-    
     # Tuy Hòa
     "tuy hòa": "TBB", "tuy hoa": "TBB", "phú yên": "TBB", "phu yen": "TBB",
-    
     # Côn Đảo
     "côn đảo": "VCS", "con dao": "VCS", "bà rịa vũng tàu": "VCS", "ba ria vung tau": "VCS",
-    
     # Điện Biên
     "điện biên": "DIN", "dien bien": "DIN",
-    
     # Rạch Giá
     "rạch giá": "VKG", "rach gia": "VKG", "kiên giang": "VKG", "kien giang": "VKG",
-    
     # Cà Mau
     "cà mau": "CAH", "ca mau": "CAH",
-    
     # Vũng Tàu
     "vũng tàu": "VTG", "vung tau": "VTG",
-    
     # Nà Sản
     "nà sản": "SQH", "na san": "SQH", "sơn la": "SQH", "son la": "SQH",
-    
     # Phù Cát
     "phù cát": "UIH", "phu cat": "UIH", "quy nhơn": "UIH", "quy nhon": "UIH", "bình định": "UIH", "binh dinh": "UIH",
-    
     # Long Thành (dự kiến)
     "long thành": "LTG", "long thanh": "LTG", "đồng nai": "LTG", "dong nai": "LTG",
-    
     # Vân Đồn
     "vân đồn": "VDO", "van don": "VDO", "quảng ninh": "VDO", "quang ninh": "VDO",
-    
     # Phan Thiết (dự kiến)
     "phan thiết": "PHH", "phan thiet": "PHH", "bình thuận": "PHH", "binh thuan": "PHH",
-    
     # Sa Pa (dự kiến)
     "sa pa": "SPP", "lào cai": "SPP", "lao cai": "SPP",
-    
     # Quảng Trị (dự kiến)
     "quảng trị": "QTG", "quang tri": "QTG",
-    
     # Gia Lâm
     "gia lâm": "GLI", "gia lam": "GLI", "hà nội": "GLI", "ha noi": "GLI",
-    
     # Nha Trang (quân sự)
     "nha trang": "NHA", "khánh hòa": "NHA", "khanh hoa": "NHA",
-    
     # Biên Hòa (quân sự)
     "biên hòa": "BHA", "bien hoa": "BHA", "đồng nai": "BHA", "dong nai": "BHA",
-    
     # Phan Rang (quân sự)
     "phan rang": "PRG", "ninh thuận": "PRG", "ninh thuan": "PRG",
-    
     # Thọ Xuân
     "thọ xuân": "THD", "tho xuan": "THD", "thanh hóa": "THD", "thanh hoa": "THD",
-
     # Kiên Giang – sân bay Hà Tiên (đề xuất)
     "hà tiên": "HTV", "ha tien": "HTV", "kiên giang": "HTV", "kien giang": "HTV",
-
     # Tây Ninh – chưa có sân bay thương mại, nhưng đang quy hoạch
     "tây ninh": "TNN", "tay ninh": "TNN",
-
     # Bắc Giang (Quế Võ – đề xuất)
     "bắc giang": "BGG", "bac giang": "BGG", "quế võ": "BGG", "que vo": "BGG",
-
     # Bắc Ninh
     "bắc ninh": "BNN", "bac ninh": "BNN",
-
     # Hà Giang – chưa có sân bay, nhưng đang nghiên cứu khả thi
     "hà giang": "HGG", "ha giang": "HGG",
-
     # Tuyên Quang
     "tuyên quang": "TQN", "tuyen quang": "TQN",
-
     # Lạng Sơn
     "lạng sơn": "LSN", "lang son": "LSN",
-
     # Yên Bái
     "yên bái": "YBI", "yen bai": "YBI",
-
     # Lai Châu
     "lai châu": "LCH", "lai chau": "LCH",
-
     # Kon Tum
     "kon tum": "KTM",
-
     # An Giang (đề xuất sân bay Châu Đốc)
     "an giang": "CDG", "châu đốc": "CDG", "chau doc": "CDG",
-
     # Sóc Trăng (sân bay Sóc Trăng đang quy hoạch)
     "sóc trăng": "SOA", "soc trang": "SOA",
-
     # Trà Vinh
     "trà vinh": "TVH", "tra vinh": "TVH",
-
     # Bạc Liêu
     "bạc liêu": "BLU", "bac lieu": "BLU",
-
     # Hà Nam
     "hà nam": "HNM", "ha nam": "HNM",
-
     # Hưng Yên
     "hưng yên": "HYN", "hung yen": "HYN",
-
     # Nam Định
     "nam định": "NDH", "nam dinh": "NDH",
-
     # Ninh Bình
     "ninh bình": "NBH", "ninh binh": "NBH",
-
     # Thái Bình
     "thái bình": "TBH", "thai binh": "TBH",
-
     # Thái Nguyên
     "thái nguyên": "TNN", "thai nguyen": "TNN",
-
     # Vĩnh Phúc
     "vĩnh phúc": "VPH", "vinh phuc": "VPH",
-
     # Bình Phước
     "bình phước": "BPH", "binh phuoc": "BPH",
-
     # Đắk Nông
     "đắk nông": "DNO", "dak nong": "DNO",
 }
@@ -503,11 +448,11 @@ def handle(update: Update, context):
         user_states[uid]['state'] = 'dest'
         update.message.reply_text(
             "Nhập tên thành phố/sân bay" if lang=='vn'
-            else "Enter city or airport name"
+            else "Enter destination city or airport name"
         )
         return
 
-    if text in ['📍 tra theo điểm đi', '🛫 search by origin']:
+    if text in ['🛫 tra theo điểm đi', '🛫 search by origin']:
         user_states[uid]['state'] = 'origin'
         update.message.reply_text(
             "Nhập tên thành phố/sân bay xuất phát" if lang=='vn'
