@@ -23,8 +23,6 @@ SPREADSHEET_ID = os.environ["SPREADSHEET_ID"]
 sheet = gc.open_by_key(SPREADSHEET_ID).worksheet("API Usage Counter")
 
 
-TOKEN = '8051795674:AAHuqYMmC47CzFsd-Li-y0_kEH3bSZi01Uk'
-API_KEY = 'ac2469df44587ed7b51f78729f69bd30'
 API_USAGE_FILE = "api_usage.txt"
 
 # Sau các import, ngay trước khi khởi tạo app:
