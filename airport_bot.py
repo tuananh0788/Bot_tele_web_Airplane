@@ -10,8 +10,6 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 
-TOKEN = '8051795674:AAHuqYMmC47CzFsd-Li-y0_kEH3bSZi01Uk'
-API_KEY = 'ac2469df44587ed7b51f78729f69bd30'
 API_USAGE_FILE = "api_usage.txt"
 
 # --- Google Sheets setup ---
